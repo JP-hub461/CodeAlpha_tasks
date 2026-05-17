@@ -1,1 +1,108 @@
+"""
+TASK 4: Basic Chatbot
+CodeAlpha Python Internship
+Author: JP
 
+A rule-based chatbot that responds to common conversational inputs.
+"""
+
+# ── Response rules: keywords → reply ──────────────────────────
+# Each key is a tuple of trigger words/phrases (lowercase).
+# The chatbot checks if ANY trigger appears in the user's input.
+
+RULES = [
+    # Greetings
+    (("hello", "hi", "hey", "good morning", "good afternoon", "good evening"),
+     "Hello! 👋 Great to meet you. How can I help today?"),
+
+    # How are you
+    (("how are you", "how r u", "how do you do", "how have you been", "you good"),
+     "I'm doing great, thanks for asking! 😊 How about you?"),
+
+    # Name
+    (("your name", "who are you", "what are you"),
+     "I'm CodeBot — your CodeAlpha assistant! Built with Python 🐍."),
+
+    # What can you do
+    (("what can you do", "help", "commands", "capabilities"),
+     "I can chat with you! Try saying: hello, how are you, tell me a joke, "
+     "what time is it, or just talk to me. 😄"),
+
+    # Jokes
+    (("joke", "funny", "make me laugh", "tell me something"),
+     "Why do programmers prefer dark mode? Because light attracts bugs! 🐛😂"),
+
+    # Time
+    (("time", "what time", "current time"),
+     f"I don't have a real-time clock, but your device does! ⏰"),
+
+    # Python
+    (("python", "programming", "coding", "code"),
+     "Python is amazing! 🐍 Clean syntax, powerful libraries, and great for "
+     "everything from web dev to AI. Keep coding!"),
+
+    # Engineering
+    (("engineering", "electrical", "electronics", "eee", "circuit", "voltage"),
+     "Engineering is the future! ⚡ Electrical and Electronics Engineering "
+     "opens doors to power systems, embedded tech, AI hardware, and much more."),
+
+    # Thank you
+    (("thank you", "thanks", "thank u", "thx", "appreciate"),
+     "You're very welcome! 😊 Happy to help anytime."),
+
+    # Bye / exit
+    (("bye", "goodbye", "see you", "exit", "quit", "later"),
+     "Goodbye! 👋 It was nice chatting. Come back anytime!"),
+
+    # Affirmations
+    (("yes", "yep", "yeah", "sure", "okay", "ok", "alright"),
+     "Got it! Let me know if there's anything else. 😊"),
+
+    # Negations
+    (("no", "nope", "not really", "nah"),
+     "No problem at all! Is there something else I can help with?"),
+]
+
+# Default reply when no rule matches
+DEFAULT_REPLY = ("Hmm, I'm not sure I understand that. 🤔 "
+                 "Try: hello, how are you, tell me a joke, or type 'help'.")
+
+def get_response(user_input: str) -> str:
+    """Match user input against rules and return appropriate response."""
+    text = user_input.lower().strip()
+
+    for triggers, reply in RULES:
+        for trigger in triggers:
+            if trigger in text:
+                return reply
+
+    return DEFAULT_REPLY
+
+def chatbot():
+    """Main chat loop."""
+    print("\n" + "="*50)
+    print("   🤖  CODEBOT — CodeAlpha Chatbot (Task 4)")
+    print("="*50)
+    print("  Type 'bye' or 'quit' to exit.\n")
+
+    while True:
+        try:
+            user_input = input("  You: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\n  CodeBot: Goodbye! 👋\n")
+            break
+
+        if not user_input:
+            continue   # ignore empty input
+
+        response = get_response(user_input)
+        print(f"  CodeBot: {response}\n")
+
+        # Exit condition
+        if any(word in user_input.lower() for word in ("bye", "goodbye", "quit", "exit")):
+            break
+
+    print("  [Session ended]\n")
+
+if __name__ == "__main__":
+    chatbot()

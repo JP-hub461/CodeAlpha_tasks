@@ -1,1 +1,139 @@
+"""
+TASK 2: Stock Portfolio Tracker
+CodeAlpha Python Internship
+Author: JP
+"""
 
+import csv
+import os
+from datetime import datetime
+
+# ── Hardcoded stock price dictionary (USD) ────────────────────
+STOCK_PRICES = {
+    "AAPL":  182.50,
+    "TSLA":  248.75,
+    "MSFT":  415.20,
+    "GOOGL": 175.90,
+    "AMZN":  192.30,
+    "NVDA":  875.40,
+    "META":  530.60,
+    "NFLX":  640.10,
+}
+
+def display_available_stocks():
+    """Show all stocks with their current prices."""
+    print("\n" + "="*45)
+    print(f"  {'TICKER':<10} {'PRICE (USD)':>12}")
+    print("="*45)
+    for ticker, price in STOCK_PRICES.items():
+        print(f"  {ticker:<10} ${price:>11.2f}")
+    print("="*45)
+
+def get_portfolio_from_user():
+    """Interactively collect stock name and quantity from user."""
+    portfolio = {}
+    print("\n  Enter your stock holdings.")
+    print("  Type 'done' when finished.\n")
+
+    while True:
+        ticker = input("  Stock ticker (e.g. AAPL): ").strip().upper()
+        if ticker == "DONE":
+            break
+        if ticker not in STOCK_PRICES:
+            print(f"  ⚠  '{ticker}' not found. Available: {', '.join(STOCK_PRICES)}")
+            continue
+
+        while True:
+            try:
+                qty = int(input(f"  Quantity of {ticker}: ").strip())
+                if qty <= 0:
+                    print("  Quantity must be a positive whole number.")
+                else:
+                    break
+            except ValueError:
+                print("  Please enter a valid integer.")
+
+        # Add to or update portfolio
+        portfolio[ticker] = portfolio.get(ticker, 0) + qty
+        print(f"  ✅ Added {qty} share(s) of {ticker}.\n")
+
+    return portfolio
+
+def calculate_portfolio(portfolio):
+    """Return a list of rows with value per holding."""
+    rows = []
+    total = 0.0
+    for ticker, qty in portfolio.items():
+        price = STOCK_PRICES[ticker]
+        value = price * qty
+        total += value
+        rows.append((ticker, qty, price, value))
+    return rows, total
+
+def display_summary(rows, total):
+    """Print a formatted portfolio summary table."""
+    print("\n" + "="*62)
+    print("                 📊  PORTFOLIO SUMMARY")
+    print("="*62)
+    print(f"  {'TICKER':<8} {'QTY':>6} {'PRICE (USD)':>13} {'VALUE (USD)':>13}")
+    print("-"*62)
+    for ticker, qty, price, value in rows:
+        print(f"  {ticker:<8} {qty:>6} ${price:>12.2f} ${value:>12.2f}")
+    print("="*62)
+    print(f"  {'TOTAL INVESTMENT':>30}:  ${total:>12.2f}")
+    print("="*62)
+
+def save_to_csv(rows, total):
+    """Save portfolio summary to a timestamped CSV file."""
+    filename = f"portfolio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    with open(filename, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Ticker", "Quantity", "Price (USD)", "Value (USD)"])
+        for row in rows:
+            writer.writerow(row)
+        writer.writerow([])
+        writer.writerow(["", "", "TOTAL", f"{total:.2f}"])
+    print(f"\n  💾 Portfolio saved to: {filename}")
+
+def save_to_txt(rows, total):
+    """Save portfolio summary to a plain text file."""
+    filename = f"portfolio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    with open(filename, "w") as f:
+        f.write("STOCK PORTFOLIO SUMMARY\n")
+        f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        f.write(f"{'Ticker':<8} {'Qty':>6} {'Price':>12} {'Value':>12}\n")
+        f.write("-"*42 + "\n")
+        for ticker, qty, price, value in rows:
+            f.write(f"{ticker:<8} {qty:>6} ${price:>11.2f} ${value:>11.2f}\n")
+        f.write("="*42 + "\n")
+        f.write(f"{'TOTAL':>28}: ${total:>11.2f}\n")
+    print(f"\n  💾 Portfolio saved to: {filename}")
+
+def main():
+    print("\n" + "="*45)
+    print("    💹 STOCK PORTFOLIO TRACKER — CodeAlpha")
+    print("="*45)
+
+    display_available_stocks()
+    portfolio = get_portfolio_from_user()
+
+    if not portfolio:
+        print("\n  No stocks entered. Exiting.")
+        return
+
+    rows, total = calculate_portfolio(portfolio)
+    display_summary(rows, total)
+
+    # Optional save
+    save_choice = input("\n  Save results? (csv / txt / no): ").strip().lower()
+    if save_choice == "csv":
+        save_to_csv(rows, total)
+    elif save_choice == "txt":
+        save_to_txt(rows, total)
+    else:
+        print("\n  Results not saved.")
+
+    print("\n  Thank you for using the Portfolio Tracker!\n")
+
+if __name__ == "__main__":
+    main()
